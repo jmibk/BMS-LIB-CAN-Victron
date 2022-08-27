@@ -258,7 +258,13 @@ void CanVictron::_message_374_375_376_377(void) {
     _send_canbus_message(0x377, (uint8_t *)&data, sizeof(candata));
     }
 
-void CanVictron::send_messages(void) {
+bool CanVictron::send_messages(void) {
+	// watch out if time to send
+	if ( millis() < (_last_message_sent_millis + _time_between_messages_ms) ) {
+		return false;
+		}
+	_last_message_sent_millis = millis();
+
     // minimum CAN-IDs required for the core functionality are 0x351, 0x355, 0x356 and 0x35A.
     // 351 message must be sent at least every 3 seconds - or Victron will stop charge/discharge
     _message_351();
@@ -283,6 +289,6 @@ void CanVictron::send_messages(void) {
     _message_373();
     _message_374_375_376_377();
 
-    //delay
-    //delay(1000);
+    //return
+	return true;
     }
