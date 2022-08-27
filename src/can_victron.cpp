@@ -22,7 +22,7 @@ bool CanVictron::init(gpio_num_t portTX=GPIO_NUM_5, gpio_num_t portRX=GPIO_NUM_3
     }
 
 bool CanVictron::init() {
-    init(GPIO_NUM_5, GPIO_NUM_35);
+    return init(GPIO_NUM_5, GPIO_NUM_35);
     }
     
 bool CanVictron::_send_canbus_message(uint32_t identifier, uint8_t *buffer, uint8_t length) {

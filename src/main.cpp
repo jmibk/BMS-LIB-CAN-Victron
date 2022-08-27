@@ -18,6 +18,7 @@ void setup() {
 void loop() {  
   //set some values
   can.set_chargevoltagelimit(14.9);
+  can.set_stateofchargevalue((millis()/1000)%100);
 
   //send can messages
   can.send_messages();
