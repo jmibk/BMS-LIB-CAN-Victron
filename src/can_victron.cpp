@@ -34,13 +34,14 @@ bool CanVictron::_send_canbus_message(uint32_t identifier, uint8_t *buffer, uint
     memcpy(&message.data, buffer, length);
 
     // Queue message for transmission
-    if (twai_transmit(&message, pdMS_TO_TICKS(250)) != ESP_OK) 
+    if (twai_transmit(&message, pdMS_TO_TICKS(250)) != ESP_OK) {
         return false;
+        }
 
     return true;
     }
 
-void CanVictron::_message_351(void) {
+bool CanVictron::_message_351(void) {
     struct data351 {  
         uint16_t chargevoltagelimit;  // CVL   
         int16_t maxchargecurrent;     // CCL
@@ -54,21 +55,30 @@ void CanVictron::_message_351(void) {
     data.maxdischargecurrent = _bms_data.maxdischargecurrent * 10;
     data.dischargevoltage = _bms_data.dischargevoltage * 10;
 
-    _send_canbus_message(0x351, (uint8_t *)&data, sizeof(data351));
+    if(!_send_canbus_message(0x351, (uint8_t *)&data, sizeof(data351)))
+        return false;
+
+    return true;
     }
 
 // Transmit the device name via two CAN Messages
-void CanVictron::_message_370_371(void) {
-    _send_canbus_message(0x370, (uint8_t *)&_bms_data.devicename, 8);
-    _send_canbus_message(0x371, (uint8_t *)&_bms_data.devicename[8], 8);
+bool CanVictron::_message_370_371(void) {
+    if (!_send_canbus_message(0x370, (uint8_t *)&_bms_data.devicename, 8))
+        return false;
+    if (!_send_canbus_message(0x371, (uint8_t *)&_bms_data.devicename[8], 8))
+        return false;
+
+    return true;
     }
 
-void CanVictron::_message_35e() {
-    _send_canbus_message(0x35e, (uint8_t *)&_bms_data.devicename, 6);
+bool CanVictron::_message_35e() {
+    if(!_send_canbus_message(0x35e, (uint8_t *)&_bms_data.devicename, 6))
+        return false;
+    return true;
     }
 
 // Send alarm details to Victron over CANBUS
-void CanVictron::_message_35a(void) {
+bool CanVictron::_message_35a(void) {
     struct data35a {
         uint8_t byte0;
         uint8_t byte1;
@@ -146,10 +156,13 @@ void CanVictron::_message_35a(void) {
     data.byte7 |= _bms_data.systenStatusOnline?BIT23_ALARM:BIT23_OK;           // 7 (bit 2+3) System status (online/offline) [1]
     // 7 (rest) Reserved
                     
-    _send_canbus_message(0x35a, (uint8_t *)&data, sizeof(data35a));
+    if(!_send_canbus_message(0x35a, (uint8_t *)&data, sizeof(data35a)))
+        return false;
+
+    return true;
     }
 
-void CanVictron::_message_372(void) {
+bool CanVictron::_message_372(void) {
     struct data372 {
         uint16_t numberofmodulesok;
         uint16_t numberofmodulesblockingcharge;
@@ -163,10 +176,13 @@ void CanVictron::_message_372(void) {
     data.numberofmodulesblockingdischarge = _bms_data.numberofmodulesblockingdischarge;
     data.numberofmodulesoffline = _bms_data.numberofmodulesoffline;
 
-    _send_canbus_message(0x372, (uint8_t *)&data, sizeof(data372));
+    if(!_send_canbus_message(0x372, (uint8_t *)&data, sizeof(data372)))
+        return false;
+
+    return true;
     }
 
-void CanVictron::_message_35f(void) {
+bool CanVictron::_message_35f(void) {
     struct data35f {  
         uint16_t BatteryModel;        // Not used
         uint16_t Firmwareversion;
@@ -179,11 +195,14 @@ void CanVictron::_message_35f(void) {
     data.Firmwareversion = ((uint16_t)_bms_data.firmwareversionpost << 8) | _bms_data.firmwareversionpre;  
     data.OnlinecapacityinAh = _bms_data.onlinecapacityinAh;
 
-    _send_canbus_message(0x35f, (uint8_t *)&data, sizeof(data35f));
+    if(!_send_canbus_message(0x35f, (uint8_t *)&data, sizeof(data35f)))
+        return false;
+    
+    return true;
     }
 
 // S.o.C value
-void CanVictron::_message_355(void) {
+bool CanVictron::_message_355(void) {
     struct data355 {
         uint16_t stateofchargevalue;
         uint16_t stateofhealthvalue;
@@ -195,27 +214,33 @@ void CanVictron::_message_355(void) {
     data.stateofhealthvalue = _bms_data.stateofhealthvalue;
     data.highresolutionsoc = _bms_data.highresolutionsoc;   // 2 SOH value un16 1 %
 
-    _send_canbus_message(0x355, (uint8_t *)&data, sizeof(data355));
+    if(!_send_canbus_message(0x355, (uint8_t *)&data, sizeof(data355)))
+        return false;
+
+    return true;
     }
 
 // Battery voltage
-void CanVictron::_message_356(void) {
-  struct data356 {
-    int16_t batteryvoltage;
-    int16_t batterycurrent;
-    int16_t batterytemperature;
-  };
-  data356 data;
+bool CanVictron::_message_356(void) {
+    struct data356 {
+        int16_t batteryvoltage;
+        int16_t batterycurrent;
+        int16_t batterytemperature;
+    };
+    data356 data;
 
-  // Use highest pack voltage calculated by controller and modules
-  data.batteryvoltage = _bms_data.batteryvoltage * 100; 
-  data.batterycurrent = _bms_data.batterycurrent * 10;   
-  data.batterytemperature = _bms_data.batterytemperature * (int16_t)10;
- 
-  _send_canbus_message(0x356, (uint8_t *)&data, sizeof(data356));
-  }
+    // Use highest pack voltage calculated by controller and modules
+    data.batteryvoltage = _bms_data.batteryvoltage * 100; 
+    data.batterycurrent = _bms_data.batterycurrent * 10;   
+    data.batterytemperature = _bms_data.batterytemperature * (int16_t)10;
+    
+    if(!_send_canbus_message(0x356, (uint8_t *)&data, sizeof(data356)))
+        return false;
 
- void CanVictron::_message_373(void) {
+    return true;
+    }
+
+ bool CanVictron::_message_373(void) {
     struct data373 {
         uint16_t mincellvoltage;
         uint16_t maxcellvoltage;
@@ -229,10 +254,13 @@ void CanVictron::_message_356(void) {
     data.lowestcelltemperature = 273 + _bms_data.lowestcelltemperature;
     data.highestcelltemperature = 273 + _bms_data.highestcelltemperature;
 
-    _send_canbus_message(0x373, (uint8_t *)&data, sizeof(data373));
+    if(!_send_canbus_message(0x373, (uint8_t *)&data, sizeof(data373)))
+        return false;
+    
+    return true;
     }
 
-void CanVictron::_message_374_375_376_377(void) {
+bool CanVictron::_message_374_375_376_377(void) {
     struct candata   {
         char text[8];
     };
@@ -241,22 +269,28 @@ void CanVictron::_message_374_375_376_377(void) {
     //0x374
     memset(data.text, 0, 8);   // Clear all 8 bytes
     snprintf(data.text, 8, "Cell %d", _bms_data.lowestcellvoltagenumber);
-    _send_canbus_message(0x374, (uint8_t *)&data, sizeof(candata));
+    if(!_send_canbus_message(0x374, (uint8_t *)&data, sizeof(candata)))
+        return false;
 
     //0x375
     memset(data.text, 0, 8);   // Clear all 8 bytes
     snprintf(data.text, 8, "Cell %d", _bms_data.highestcellvoltagenumber);
-    _send_canbus_message(0x375, (uint8_t *)&data, sizeof(candata));
+    if(!_send_canbus_message(0x375, (uint8_t *)&data, sizeof(candata)))
+        return false;
 
     //0x376
     memset(data.text, 0, 8);   // Clear all 8 bytes
     snprintf(data.text, 8, "Cell %d", _bms_data.lowestcelltemperaturenumber);
-    _send_canbus_message(0x376, (uint8_t *)&data, sizeof(candata));
+    if(!_send_canbus_message(0x376, (uint8_t *)&data, sizeof(candata)))
+        return false;
 
     //0x377
     memset(data.text, 0, 8);   // Clear all 8 bytes
     snprintf(data.text, 8, "Cell %d", _bms_data.highestcelltemperaturenumber);
-    _send_canbus_message(0x377, (uint8_t *)&data, sizeof(candata));
+    if(!_send_canbus_message(0x377, (uint8_t *)&data, sizeof(candata)))
+        return false;
+    
+    return true;
     }
 
 bool CanVictron::send_messages(void) {
@@ -268,27 +302,36 @@ bool CanVictron::send_messages(void) {
 
     // minimum CAN-IDs required for the core functionality are 0x351, 0x355, 0x356 and 0x35A.
     // 351 message must be sent at least every 3 seconds - or Victron will stop charge/discharge
-    _message_351();            
+    if(!_message_351())
+        return false;        
 
     // Delay a little whilst sending packets to give ESP32 some breathing room and not flood the CANBUS
     //delay(100);
 
     // Advertise the diyBMS name on CANBUS
-    _message_370_371();         
-    _message_35e();           
-    _message_35a();             
-    _message_372();            
-    _message_35f();             
+    if(!_message_370_371())
+        return false;        
+    if(!_message_35e())
+        return false;       
+    if(!_message_35a())
+        return false;            
+    if(!_message_372())
+        return false;            
+    if(!_message_35f())
+        return false;             
 
-    //delay(100);
-    _message_355();            
-    _message_356();           
+    if(!_message_355())
+        return false;         
+    if(!_message_356())
+        return false;           
 
     //delay(100);
 
     // Detail about individual cells
-    _message_373();             
-    _message_374_375_376_377(); 
+    if(!_message_373())
+        return false;        
+    if(!_message_374_375_376_377())
+        return false;
 
     //return
 	return true;

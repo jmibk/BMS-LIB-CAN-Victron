@@ -27,4 +27,7 @@ void loop() {
   //send can messages
   if (can.send_messages())
     Serial.println("CAN MESSAGE SENT");
+
+  //some delay
+  delay(100);
   }

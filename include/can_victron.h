@@ -1,34 +1,3 @@
-/*
-Usage:
-#include "can_victron.h"
-
-CanVictron can = CanVictron();
-
-void setup() {
-  //init serial connection
-  Serial.begin(115200);
-  Serial.println("Demo - CAN for Victron BMS");
- 
-  //init can
-  if (can.init(GPIO_NUM_5, GPIO_NUM_35)) { //TX, RX
-    can.set_time_between_messages(2.0);
-    Serial.println("CAN initialised");
-    }
-  else
-    Serial.println("CAN failed!");
-  }
-
-void loop() {  
-  //set some values
-  can.set_chargevoltagelimit(14.9);
-  can.set_stateofchargevalue((millis()/1000)%100);
-
-  //send can messages
-  if (can.send_messages())
-    Serial.println("CAN MESSAGE SENT");
-  }
-*/
-
 #ifndef CAN_VICTRON_H
 #define CAN_VICTRON_H
 #include <Arduino.h>
@@ -39,16 +8,16 @@ void loop() {
 class CanVictron {
     private:
         bool _send_canbus_message(uint32_t identifier, uint8_t *buffer, uint8_t length);
-        void _message_351(void);
-        void _message_370_371(void);
-        void _message_35e(void);
-        void _message_35a(void);
-        void _message_372(void);
-        void _message_35f(void);
-        void _message_355(void);
-        void _message_356(void);
-        void _message_373(void);
-        void _message_374_375_376_377(void);
+        bool _message_351(void);
+        bool _message_370_371(void);
+        bool _message_35e(void);
+        bool _message_35a(void);
+        bool _message_372(void);
+        bool _message_35f(void);
+        bool _message_355(void);
+        bool _message_356(void);
+        bool _message_373(void);
+        bool _message_374_375_376_377(void);
 
         struct bms_data_struct {  
         //0x371, 0x372, 0x35e
