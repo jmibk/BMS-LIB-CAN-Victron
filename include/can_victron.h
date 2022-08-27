@@ -111,14 +111,14 @@ class CanVictron {
         bms_data_struct _bms_data;
 		
 		unsigned long	_last_message_sent_millis;
-		uint16_t		_time_between_messages_ms = 0;
+		uint16_t		  _time_between_messages_ms = 0;
 
     public:
         CanVictron(void);
         bool init(gpio_num_t portTX, gpio_num_t portRX);
         bool init(void);
 		
-		void set_time_between_messages(float value)					{_bms_data._time_between_messages_ms = value * 1000;}
+		    void set_time_between_messages(float value)					        {_time_between_messages_ms = value * 1000;}
 		
         bool send_messages(void);
 

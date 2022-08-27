@@ -9,8 +9,10 @@ void setup() {
   Serial.println("Demo - CAN for Victron BMS");
  
   //init can
-  if (can.init(GPIO_NUM_5, GPIO_NUM_35))  //TX, RX
+  if (can.init(GPIO_NUM_5, GPIO_NUM_35)) { //TX, RX
+    can.set_time_between_messages(2);
     Serial.println("CAN initialised");
+    }
   else
     Serial.println("CAN failed!");
   }
