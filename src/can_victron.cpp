@@ -18,6 +18,7 @@ bool CanVictron::init(gpio_num_t portTX=GPIO_NUM_5, gpio_num_t portRX=GPIO_NUM_3
     if (twai_start() != ESP_OK) 
         return false;
 
+    //return 
     return true;
     }
 
@@ -267,27 +268,27 @@ bool CanVictron::send_messages(void) {
 
     // minimum CAN-IDs required for the core functionality are 0x351, 0x355, 0x356 and 0x35A.
     // 351 message must be sent at least every 3 seconds - or Victron will stop charge/discharge
-    _message_351();
+    _message_351();            
 
     // Delay a little whilst sending packets to give ESP32 some breathing room and not flood the CANBUS
     //delay(100);
 
     // Advertise the diyBMS name on CANBUS
-    _message_370_371();
-    _message_35e();
-    _message_35a();
-    _message_372();
-    _message_35f();
+    _message_370_371();         
+    _message_35e();           
+    _message_35a();             
+    _message_372();            
+    _message_35f();             
 
     //delay(100);
-    _message_355();
-    _message_356();
+    _message_355();            
+    _message_356();           
 
     //delay(100);
 
     // Detail about individual cells
-    _message_373();
-    _message_374_375_376_377();
+    _message_373();             
+    _message_374_375_376_377(); 
 
     //return
 	return true;

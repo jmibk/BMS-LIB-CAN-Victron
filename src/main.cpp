@@ -10,7 +10,7 @@ void setup() {
  
   //init can
   if (can.init(GPIO_NUM_5, GPIO_NUM_35)) { //TX, RX
-    can.set_time_between_messages(2);
+    can.set_time_between_messages(2.0);
     Serial.println("CAN initialised");
     }
   else
@@ -18,13 +18,13 @@ void setup() {
   }
 
 void loop() {  
+  Serial.println("TICK");
+
   //set some values
   can.set_chargevoltagelimit(14.9);
   can.set_stateofchargevalue((millis()/1000)%100);
 
   //send can messages
-  can.send_messages();
-
-  //some delay
-  delay(1000);
+  if (can.send_messages())
+    Serial.println("CAN MESSAGE SENT");
   }
