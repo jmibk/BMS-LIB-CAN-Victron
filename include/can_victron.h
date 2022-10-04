@@ -1,9 +1,13 @@
+/*
+default values in the bms_data_struct are suitable for a 16S LiFePo4 battery
+*/
+
 #ifndef CAN_VICTRON_H
 #define CAN_VICTRON_H
 #include <Arduino.h>
 #include <driver/twai.h>
 
-#define PRODUCT_NAME "EnergieBuam CAN"      //max 15 caracters
+#define PRODUCT_NAME "EnergieBuam BMS"                  //max 15 caracters
 
 class CanVictron {
     private:
@@ -102,7 +106,7 @@ class CanVictron {
         bool init(gpio_num_t portTX, gpio_num_t portRX);
         bool init(void);
 		
-		    void set_time_between_messages(float value)					        {_time_between_messages_ms = value * 1000;}
+		void set_time_between_messages(float value)					{_time_between_messages_ms = value * 1000;}
 		
         bool send_messages(void);
 
