@@ -7,7 +7,7 @@ default values in the bms_data_struct are suitable for a 16S LiFePo4 battery
 #include <Arduino.h>
 #include <driver/twai.h>
 
-#define PRODUCT_NAME "EnergieBuam BMS"                  //max 15 caracters
+#define PRODUCT_NAME "TECRISE TEC.BMS"                  //max 15 caracters
 
 class CanVictron {
     private:
