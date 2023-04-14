@@ -28,7 +28,7 @@ class CanVictron {
         char      devicename[16] = PRODUCT_NAME;   //
 
         //0x351
-        float     chargevoltagelimit = 61.2;            //[V] 0x351, 0-1
+        float     chargevoltagelimit = 55.0;            //[V] 0x351, 0-1
         float     maxchargecurrent = 110.4;             //[A] 0x351, 2-3
         float     maxdischargecurrent = 144.8;          //[A] 0x351, 4-5
         float     dischargevoltage = 32.4;              //[V] 0x351, 6-7
