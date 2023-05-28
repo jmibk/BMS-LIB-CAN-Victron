@@ -1,6 +1,10 @@
 #include <Arduino.h>
 #include "can_victron.h"
 
+/*
+https://github.com/espressif/esp-idf/blob/master/examples/peripherals/twai/twai_network/twai_network_slave/main/twai_network_example_slave_main.c
+*/
+
 CanVictron can = CanVictron();
 
 void setup() {
@@ -18,8 +22,6 @@ void setup() {
   }
 
 void loop() {  
-  Serial.println("TICK");
-
   //set some values
   can.set_chargevoltagelimit(14.9);
   can.set_stateofchargevalue((millis()/1000)%100);
@@ -27,6 +29,9 @@ void loop() {
   //send can messages
   if (can.send_messages())
     Serial.println("CAN MESSAGE SENT");
+
+  //receive can messsages
+  can.receive_messages();
 
   //some delay
   delay(100);

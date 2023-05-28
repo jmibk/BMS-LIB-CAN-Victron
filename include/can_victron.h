@@ -11,6 +11,7 @@ default values in the bms_data_struct are suitable for a 16S LiFePo4 battery
 
 class CanVictron {
     private:
+        bool _receive_canbus_message(void);
         bool _send_canbus_message(uint32_t identifier, uint8_t *buffer, uint8_t length);
         bool _message_351(void);
         bool _message_370_371(void);
@@ -108,6 +109,7 @@ class CanVictron {
 		
 		void set_time_between_messages(float value)					{_time_between_messages_ms = value * 1000;}
 		
+        bool receive_messages(void);
         bool send_messages(void);
 
         //void set_devicename(uint8_t *buffer)                      {_bms_data.devicename = buffer;}

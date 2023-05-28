@@ -1,5 +1,80 @@
 #include "can_victron.h"
 
+/*
+#include "driver/gpio.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "driver/twai.h"
+
+
+void new_message(twai_message_t *message, uint32_t id, uint8_t dlc, uint8_t *data)
+{
+    
+    message->flags = TWAI_MSG_FLAG_NONE;
+    message->identifier = id;
+    message->data_length_code = dlc;
+    for (int i = 0; i < dlc; i++) {
+        message->data[i] = data[i];
+    }
+    printf("Message created\nID: %ld DLC: %d Data:\t", message->identifier, message->data_length_code);
+    for (int i = 0; i < message->data_length_code; i++) {
+        printf("%d\t", message->data[i]);
+    }
+    printf("\n");
+}
+
+void transmit_message(twai_message_t *message)
+{
+    if (twai_transmit(message, pdMS_TO_TICKS(1000)) == ESP_OK) {
+        printf("Message queued for transmission\n");
+    } else {
+        printf("Failed to send message\n");
+    }
+}
+
+void receive_message(twai_message_t *message)
+{
+    if (twai_receive(message, pdMS_TO_TICKS(1000)) == ESP_OK) {
+        printf("Message received:\n");
+        printf("ID: %ld DLC: %d Data:\t", message->identifier, message->data_length_code);
+        for (int i = 0; i < message->data_length_code; i++) {
+            (message->extd)?printf("Extended ID"):printf("Standard ID");
+            printf("%d\t", message->data[i]);
+        }
+    } else {
+        printf("Failed to receive message\n");
+    }
+}
+
+void app_main()
+{
+    
+    twai_setup_and_install();
+    twai_message_t message;
+    twai_message_t message1;
+    // Set the data to send
+    uint8_t data[8] = {rand() % 255, rand() % 255, rand() % 255, 
+    rand() % 255, rand() % 255, rand() % 255, rand() % 255, rand() % 255};
+
+    while(true){ 
+    // Create a new message
+    new_message(&message, 0x123, 8, data);
+
+    // Transmit the message to a queue
+    transmit_message(&message);
+
+    // Receive the message from the queue
+    receive_message(&message1);
+
+    // Wait for 1 second
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+
+}
+
+*/
 //constructor - does nothing
 CanVictron::CanVictron(void) {
     }
@@ -25,7 +100,28 @@ bool CanVictron::init(gpio_num_t portTX=GPIO_NUM_5, gpio_num_t portRX=GPIO_NUM_3
 bool CanVictron::init() {
     return init(GPIO_NUM_5, GPIO_NUM_35);
     }
-    
+
+bool CanVictron::_receive_canbus_message(void) {
+    twai_message_t message;
+    if (twai_receive(&message, pdMS_TO_TICKS(1000)) == ESP_OK) {
+        printf("Message received:\n");
+        printf("CAN ID: %ld\n", message.identifier);
+        printf("Data Length Code: %d\n", message.data_length_code);
+        for (int i = 0; i < message.data_length_code; i++) {
+            (message.extd)?printf("Extended ID: "):printf("Standard ID: ");
+            printf("%d\t\n", message.data[i]);
+            }
+        } else {
+            printf("Failed to receive message\n");
+            return false;
+        }
+    return true;
+    }
+
+bool CanVictron::receive_messages(void) {
+    return _receive_canbus_message();
+    }
+
 bool CanVictron::_send_canbus_message(uint32_t identifier, uint8_t *buffer, uint8_t length) {
     twai_message_t message;
     message.identifier = identifier;
