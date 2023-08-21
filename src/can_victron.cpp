@@ -282,14 +282,16 @@ bool CanVictron::_message_35f(void) {
     struct data35f {  
         uint16_t BatteryModel;        // Not used
         uint16_t Firmwareversion;
-        uint16_t OnlinecapacityinAh;
+        uint16_t AvailablecapacityinAh;
+        uint16_t zero4;
     };
     data35f data;
 
     // Need to swap bytes for this to make sense.
     data.BatteryModel = _bms_data.batterymodel;
     data.Firmwareversion = ((uint16_t)_bms_data.firmwareversionpost << 8) | _bms_data.firmwareversionpre;  
-    data.OnlinecapacityinAh = _bms_data.onlinecapacityinAh;
+    data.AvailablecapacityinAh = _bms_data.availablecapacityinAh;
+    data.zero4 = 0;
 
     if(!_send_canbus_message(0x35f, (uint8_t *)&data, sizeof(data35f)))
         return false;
@@ -303,12 +305,14 @@ bool CanVictron::_message_355(void) {
         uint16_t stateofchargevalue;
         uint16_t stateofhealthvalue;
         uint16_t highresolutionsoc;
+        uint16_t zero4;
     };
     data355 data;
     
     data.stateofchargevalue = _bms_data.stateofchargevalue;  // 0 SOC value un16 1 %
     data.stateofhealthvalue = _bms_data.stateofhealthvalue;
     data.highresolutionsoc = _bms_data.highresolutionsoc;   // 2 SOH value un16 1 %
+    data.zero4 = 0;
 
     if(!_send_canbus_message(0x355, (uint8_t *)&data, sizeof(data355)))
         return false;
@@ -322,6 +326,7 @@ bool CanVictron::_message_356(void) {
         int16_t batteryvoltage;
         int16_t batterycurrent;
         int16_t batterytemperature;
+        int16_t zero4;
     };
     data356 data;
 
@@ -329,7 +334,8 @@ bool CanVictron::_message_356(void) {
     data.batteryvoltage = _bms_data.batteryvoltage * 100; 
     data.batterycurrent = _bms_data.batterycurrent * 10;   
     data.batterytemperature = _bms_data.batterytemperature * (int16_t)10;
-    
+    data.zero4 = 0;
+
     if(!_send_canbus_message(0x356, (uint8_t *)&data, sizeof(data356)))
         return false;
 
@@ -389,6 +395,42 @@ bool CanVictron::_message_374_375_376_377(void) {
     return true;
     }
 
+ bool CanVictron::_message_378(void) {
+    struct data378 {
+        uint32_t energychargedinhWh;
+        uint32_t energydischargedinhWh;
+    };
+    data378 data;
+
+    data.energychargedinhWh = _bms_data.energychargedinhWh;
+    data.energydischargedinhWh = _bms_data.energydischargedinhWh;
+
+    if(!_send_canbus_message(0x378, (uint8_t *)&data, sizeof(data378)))
+        return false;
+    
+    return true;
+    }
+
+ bool CanVictron::_message_379(void) {
+    struct data379 {
+        uint16_t installedcapacityinAh;
+        uint16_t zero2;
+        uint16_t zero3;
+        uint16_t zero4;
+    };
+    data379 data;
+
+    data.installedcapacityinAh = _bms_data.installedcapacityinAh;
+    data.zero2 = 0;
+    data.zero3 = 0;
+    data.zero4 = 0;
+
+    if(!_send_canbus_message(0x379, (uint8_t *)&data, sizeof(data379)))
+        return false;
+    
+    return true;
+    }
+
 bool CanVictron::send_messages(void) {
 	// watch out if time to send
 	if ( millis() < (_last_message_sent_millis + _time_between_messages_ms) ) {
@@ -429,6 +471,11 @@ bool CanVictron::send_messages(void) {
     if(!_message_374_375_376_377())
         return false;
 
+    if(!_message_378())
+        return false;      
+    if(!_message_379())
+        return false;      
+    
     //return
 	return true;
     }

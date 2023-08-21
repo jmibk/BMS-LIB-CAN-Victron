@@ -23,7 +23,9 @@ class CanVictron {
         bool _message_356(void);
         bool _message_373(void);
         bool _message_374_375_376_377(void);
-
+        bool _message_378(void);
+        bool _message_379(void);
+        
         struct bms_data_struct {  
         //0x371, 0x372, 0x35e
         char      devicename[16] = PRODUCT_NAME;   //
@@ -73,7 +75,7 @@ class CanVictron {
         uint16_t  batterymodel = 123;                    //0x35f, 0-1: Not used
         uint8_t   firmwareversionpre = 1;                //0x35f, 3: 1.xx Prefix
         uint8_t   firmwareversionpost = 0;               //0x35f, 2: xx.00 Suffix
-        uint16_t  onlinecapacityinAh = 280;              //[Ah] 0x35f, 5-6
+        uint16_t  installedcapacityinAh = 280;           //[Ah] 0x35f, 5-6
 
         //0x355
         uint16_t  stateofchargevalue = 99;                //[%] 0x355, 0-1
@@ -96,6 +98,14 @@ class CanVictron {
         uint16_t  highestcellvoltagenumber = 9;           //0x375
         uint16_t  lowestcelltemperaturenumber = 1;        //0x376
         uint16_t  highestcelltemperaturenumber = 14;      //0x377
+
+        //0x378
+        uint32_t  energychargedinhWh = 100;               //0x378, 0-3 Wh/10
+        uint32_t  energydischargedinhWh = 200;            //0x378, 4-7 Wh/10
+
+        //0x379
+        uint16_t  availablecapacityinAh = 123;           //[Ah] 0x379, 5-6
+
         };
         bms_data_struct _bms_data;
 		
@@ -154,7 +164,7 @@ class CanVictron {
         void set_batteryModel(uint16_t value)                       {_bms_data.batterymodel = value;}
         void set_firmwareversionPre(uint8_t value)                  {_bms_data.firmwareversionpre = value;}
         void set_firmwareversionPost(uint8_t value)                 {_bms_data.firmwareversionpost = value;}
-        void set_onlinecapacityinAh(uint16_t value)                 {_bms_data.onlinecapacityinAh = value;}
+        void set_installedcapacityinAh(uint16_t value)              {_bms_data.installedcapacityinAh = value;}
 
         void set_stateofchargevalue(uint16_t value)                 {_bms_data.stateofchargevalue = value;}
         void set_stateofhealthvalue(uint16_t value)                 {_bms_data.stateofhealthvalue = value;}
@@ -174,6 +184,10 @@ class CanVictron {
         void set_lowestcelltemperaturenumber(uint16_t value)        {_bms_data.lowestcelltemperaturenumber = value;}
         void set_highestcelltemperaturenumber(uint16_t value)       {_bms_data.highestcelltemperaturenumber = value;}
 
+        void set_energychargedinWh(float value)                     {_bms_data.energychargedinhWh = value*10;}
+        void set_energydischargedinWh(float value)                  {_bms_data.energydischargedinhWh = value*10;}
+        
+        void set_availablecapacityinAh(uint16_t value)              {_bms_data.availablecapacityinAh = value;}
     };
 
 #endif
